@@ -45,10 +45,10 @@ if (!apiKey) {
 const ai = new GoogleGenAI({ apiKey });
 
 const getTrendsPrompt = (lang: Language) => {
-  const langInstruction =
-    lang === "es"
-      ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español."
-      : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English.";
+  const languageInstruction = lang === 'es'
+    ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español, utilizando tus capacidades generales de búsqueda en Google y análisis contextual."
+    : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English, using your general Google Search capabilities and contextual understanding.";
+
   return `
 You are a world-class trend analysis expert. Your primary task is to return a JSON object with a specific, fixed number of items in its arrays.
 
@@ -81,9 +81,11 @@ The JSON object MUST have the following structure and EXACT item counts:
 }
 
 **Constraint Checklist (MUST be followed):**
-- `topKeywords` array length MUST be exactly 20.
-- `risingKeywords` array length MUST be exactly 50.
+- 'topKeywords' array length MUST be exactly 20.
+- 'risingKeywords' array length MUST be exactly 50.
 - All keywords MUST contain at least 2 words.
+`;
+};
 
 export const analyzeKeywordTrends = async (lang: Language) => {
   if (!apiKey) {
