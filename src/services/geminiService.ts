@@ -45,9 +45,10 @@ if (!apiKey) {
 const ai = new GoogleGenAI({ apiKey });
 
 const getTrendsPrompt = (lang: Language) => {
-  const languageInstruction = lang === 'es'
-    ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español, utilizando tus capacidades generales de búsqueda en Google y análisis contextual."
-    : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English, using your general Google Search capabilities and contextual understanding.";
+  const languageInstruction =
+    lang === "es"
+      ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español, utilizando tus capacidades generales de búsqueda en Google y análisis contextual."
+      : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English, using your general Google Search capabilities and contextual understanding.";
 
   return `
 You are a world-class trend analysis expert. Your primary task is to return a JSON object with a specific, fixed number of items in its arrays.
