@@ -3,6 +3,9 @@ import {
   AnalysisData,
   GroundingSource,
   TopArticle,
+  KeywordVolume,
+  RisingKeyword,
+  PopularityComparison,
   Language,
 } from "../types";
 
@@ -16,33 +19,32 @@ const PROXY_URL = "https://corsproxy.io/?";
 export const fetchNews = async (lang: Language): Promise<TopArticle[]> => {
   try {
     const response = await fetch(`${PROXY_URL}${encodeURIComponent(RSS_URLS[lang])}`);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-    const xml = await response.text();
-    const doc = new DOMParser().parseFromString(xml, "application/xml");
+    const xmlString = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
 
-    const items = Array.from(doc.querySelectorAll("item")).slice(0, 20);
+    const parsingError = xmlDoc.querySelector("parsererror");
+    if (parsingError) {
+      console.error("Error parsing XML:", parsingError);
+      throw new Error("Failed to parse the RSS feed.");
+    }
+
+    const items = Array.from(xmlDoc.querySelectorAll("item")).slice(0, 20);
+
     return items.map((item) => ({
       title: item.querySelector("title")?.textContent ?? "No Title",
       url: item.querySelector("link")?.textContent ?? "#",
       source: item.querySelector("source")?.textContent ?? "Unknown Source",
     }));
-  } catch (err) {
-    console.error("Error fetching RSS feed:", err);
-    throw new Error("Could not load latest news from Google News.");
+  } catch (error) {
+    console.error("Error fetching or parsing RSS feed:", error);
+    throw new Error("Could not retrieve latest news from Google News. Please check the connection or proxy service.");
   }
 };
-
-// ✅ FIXED: Removed all use of process.env
-// ✅ Use import.meta.env to safely access Vite environment variables
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-if (!apiKey) {
-  console.error("❌ Missing Gemini API key! Check your .env.local file.");
-  throw new Error("VITE_GEMINI_API_KEY not found.");
-}
-
-// ✅ Create the Gemini client properly
-const ai = new GoogleGenAI({ apiKey });
 
 const getTrendsPrompt = (lang: Language) => {
   const languageInstruction =
@@ -66,7 +68,7 @@ The JSON object must have the following structure:
   ],
   "risingKeywords": [
     {"keyword": "emerging topic", "growthPercentage": 450},
-    ... 29 more items
+    ... 49 more items
   ],
   "popularityComparison": {
     "last24HoursIndex": 85,
@@ -82,29 +84,54 @@ The JSON object must have the following structure:
 `;
 };
 
-export const analyzeKeywordTrends = async (lang: Language) => {
-  if (!apiKey) {
-    throw new Error("VITE_GEMINI_API_KEY is not set in your .env.local file.");
+type TrendsAnalysisData = Omit<AnalysisData, "topArticles">;
+
+export const analyzeKeywordTrends = async (
+  lang: Language
+): Promise<{ data: TrendsAnalysisData; sources: GroundingSource[] }> => {
+  if (!import.meta.env.VITE_GEMINI_API_KEY) {
+    throw new Error("VITE_GEMINI_API_KEY environment variable not set.");
   }
+
+  const ai = new GoogleGenAI({
+    apiKey: import.meta.env.VITE_GEMINI_API_KEY,
+  });
 
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: getTrendsPrompt(lang),
-      config: { tools: [{ googleSearch: {} }] },
+      config: {
+        tools: [{ googleSearch: {} }],
+      },
     });
 
-    const raw = response.text.trim();
-    const json = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+    const rawText = response.text.trim();
 
-    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    const sources = chunks
-      .map((c: any) => (c.web ? { uri: c.web.uri, title: c.web.title } : null))
-      .filter((s: any): s is GroundingSource => !!s?.uri && !!s?.title);
+    const startIndex = rawText.indexOf("{");
+    const endIndex = rawText.lastIndexOf("}");
 
-    return { data: json, sources };
-  } catch (err) {
-    console.error("Error fetching Gemini data:", err);
-    throw new Error("Error fetching or parsing trend data from Gemini API.");
+    if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+      console.error("Invalid response format from Gemini, could not find JSON object:", rawText);
+      throw new SyntaxError("Failed to find a valid JSON object in the AI's response.");
+    }
+
+    const jsonString = rawText.substring(startIndex, endIndex + 1);
+    const parsedData: TrendsAnalysisData = JSON.parse(jsonString);
+
+    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    const sources: GroundingSource[] = groundingChunks
+      .map((chunk) =>
+        chunk.web ? { uri: chunk.web.uri, title: chunk.web.title } : null
+      )
+      .filter((source): source is GroundingSource => source !== null && !!source.uri && !!source.title);
+
+    return { data: parsedData, sources };
+  } catch (error) {
+    console.error("Error fetching or parsing trend data:", error);
+    if (error instanceof SyntaxError) {
+      throw new Error("Failed to parse the AI's response. The data format was invalid or incomplete.");
+    }
+    throw new Error("An error occurred while fetching keyword trend data from the Gemini API.");
   }
 };
