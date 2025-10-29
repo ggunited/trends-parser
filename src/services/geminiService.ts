@@ -60,13 +60,13 @@ const getTrendsPrompt = (lang: Language) => {
     "- Do not include any text, explanations, or markdown formatting before or after the JSON.\n\n" +
     "The JSON object MUST have the following structure and EXACT item counts:\n" +
     "{\n" +
-    '  "topKeywords": [\n' +
+    '   topKeywords: [\n' +
     "    // This array MUST contain exactly 20 keyword objects.\n" +
     "    // If you must include slightly less popular keywords to meet this quota, do so.\n" +
     '    {"keyword": "example keyword", "searchVolume": "1.5M"},\n' +
     "    ...\n" +
     "  ],\n" +
-    '  "risingKeywords": [\n' +
+    '   risingKeywords: [\n' +
     "    // This array MUST contain exactly 30 keyword objects.\n" +
     "    // Do not stop until you have 30 items.\n" +
     '    {"keyword": "emerging topic", "growthPercentage": 450},\n' +
@@ -78,7 +78,7 @@ const getTrendsPrompt = (lang: Language) => {
     '    "trend": "increasing"\n' +
     "  }\n" +
     "}\n\n" +
-    "**Constraint Checklist (MUST be followed):**\n" +
+    "Constraint Checklist (MUST be followed):\n" +
     "- topKeywords array length MUST be exactly 20.\n" +
     "- risingKeywords array length MUST be exactly 30.\n" +
     "- All keywords MUST contain at least 2 words.\n";
