@@ -50,16 +50,40 @@ const getTrendsPrompt = (lang: Language) => {
       ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español."
       : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English.";
   return `
-You are a world-class trend analysis expert.
-${langInstruction}
+You are a world-class trend analysis expert. Your primary task is to return a JSON object with a specific, fixed number of items in its arrays.
 
-Return ONLY a valid JSON object with:
+${languageInstruction}
+
+**Final Output Instructions**
+- Respond with ONLY a single, valid JSON object.
+- The validity of your response is dependent on meeting the exact item counts specified below.
+- Do not include any text, explanations, or markdown formatting before or after the JSON.
+
+The JSON object MUST have the following structure and EXACT item counts:
 {
-  "topKeywords": [{"keyword": "example", "searchVolume": "1.5M"}, ...],
-  "risingKeywords": [{"keyword": "emerging", "growthPercentage": 450}, ...],
-  "popularityComparison": {"last24HoursIndex": 85, "previous24HoursIndex": 78, "trend": "increasing"}
-}`;
-};
+  "topKeywords": [
+    // This array MUST contain exactly 20 keyword objects.
+    // If you must include slightly less popular keywords to meet this quota, do so.
+    {"keyword": "example keyword", "searchVolume": "1.5M"},
+    ...
+  ],
+  "risingKeywords": [
+    // This array MUST contain exactly 50 keyword objects.
+    // Do not stop until you have 50 items.
+    {"keyword": "emerging topic", "growthPercentage": 450},
+    ...
+  ],
+  "popularityComparison": {
+    "last24HoursIndex": 85,
+    "previous24HoursIndex": 78,
+    "trend": "increasing"
+  }
+}
+
+**Constraint Checklist (MUST be followed):**
+- `topKeywords` array length MUST be exactly 20.
+- `risingKeywords` array length MUST be exactly 50.
+- All keywords MUST contain at least 2 words.
 
 export const analyzeKeywordTrends = async (lang: Language) => {
   if (!apiKey) {
