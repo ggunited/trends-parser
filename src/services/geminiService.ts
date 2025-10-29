@@ -45,20 +45,41 @@ if (!apiKey) {
 const ai = new GoogleGenAI({ apiKey });
 
 const getTrendsPrompt = (lang: Language) => {
-  const langInstruction =
+  const languageInstruction =
     lang === "es"
-      ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español."
-      : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English.";
+      ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español, utilizando tus capacidades generales de Búsqueda de Google."
+      : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English, using your general Google Search capabilities.";
+
   return `
 You are a world-class trend analysis expert.
-${langInstruction}
+${languageInstruction}
 
-Return ONLY a valid JSON object with:
+**Final Output Instructions**
+- Respond with ONLY a single, valid JSON object.
+- Do not include any text, explanations, or markdown formatting before or after the JSON.
+
+The JSON object must have the following structure:
 {
-  "topKeywords": [{"keyword": "example", "searchVolume": "1.5M"}, ...],
-  "risingKeywords": [{"keyword": "emerging", "growthPercentage": 450}, ...],
-  "popularityComparison": {"last24HoursIndex": 85, "previous24HoursIndex": 78, "trend": "increasing"}
-}`;
+  "topKeywords": [
+    {"keyword": "example keyword", "searchVolume": "1.5M"},
+    ... 19 more items
+  ],
+  "risingKeywords": [
+    {"keyword": "emerging topic", "growthPercentage": 450},
+    ... 29 more items
+  ],
+  "popularityComparison": {
+    "last24HoursIndex": 85,
+    "previous24HoursIndex": 78,
+    "trend": "increasing"
+  }
+}
+
+**Detailed Field Requirements:**
+- topKeywords: An array of exactly 20 keywords (at least 2 words each), sorted by search volume.
+- risingKeywords: An array of exactly 50 keywords (at least 2 words each), sorted by growth percentage.
+- popularityComparison: An object with relative interest scores (1-100) and a trend ('increasing', 'decreasing', or 'stable').
+`;
 };
 
 export const analyzeKeywordTrends = async (lang: Language) => {
