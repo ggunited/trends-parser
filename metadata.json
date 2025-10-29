@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Trends Parser (backup2)",
+  "description": "A Telegram Mini App that parses and displays Google trends data related to the War in Ukraine, including key metrics on topic interest, rising content, and popular search queries.",
+  "requestFramePermissions": []
+}
