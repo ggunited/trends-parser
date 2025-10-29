@@ -50,40 +50,45 @@ const getTrendsPrompt = (lang: Language) => {
       ? "Analiza las tendencias más amplias para palabras clave y popularidad de temas relacionados con la 'Guerra en Ucrania' en español, utilizando tus capacidades generales de búsqueda en Google y análisis contextual."
       : "Analyze broader trends for keywords and topic popularity related to the 'War in Ukraine' in English, using your general Google Search capabilities and contextual understanding.";
 
-  const prompt =
-    "You are a world-class trend analysis expert. " +
-    "Your primary task is to return a JSON object with a specific, fixed number of items in its arrays.\n\n" +
-    languageInstruction +
-    "\n\n**Final Output Instructions**\n" +
-    "- Respond with ONLY a single, valid JSON object.\n" +
-    "- The validity of your response is dependent on meeting the exact item counts specified below.\n" +
-    "- Do not include any text, explanations, or markdown formatting before or after the JSON.\n\n" +
-    "The JSON object MUST have the following structure and EXACT item counts:\n" +
-    "{\n" +
-    '   topKeywords: [\n' +
-    "    // This array MUST contain exactly 20 keyword objects.\n" +
-    "    // If you must include slightly less popular keywords to meet this quota, do so.\n" +
-    '    {"keyword": "example keyword", "searchVolume": "1.5M"},\n' +
-    "    ...\n" +
-    "  ],\n" +
-    '   risingKeywords: [\n' +
-    "    // This array MUST contain exactly 30 keyword objects.\n" +
-    "    // Do not stop until you have 30 items.\n" +
-    '    {"keyword": "emerging topic", "growthPercentage": 450},\n' +
-    "    ...\n" +
-    "  ],\n" +
-    '  "popularityComparison": {\n' +
-    '    "last24HoursIndex": 85,\n' +
-    '    "previous24HoursIndex": 78,\n' +
-    '    "trend": "increasing"\n' +
-    "  }\n" +
-    "}\n\n" +
-    "Constraint Checklist (MUST be followed):\n" +
-    "- topKeywords array length MUST be exactly 20.\n" +
-    "- risingKeywords array length MUST be exactly 30.\n" +
-    "- All keywords MUST contain at least 2 words.\n";
+  const promptLines = [
+    "You are a world-class trend analysis expert.",
+    "Your primary task is to return a JSON object with a specific, fixed number of items in its arrays.",
+    "",
+    languageInstruction,
+    "",
+    "**Final Output Instructions**",
+    "- Respond with ONLY a single, valid JSON object.",
+    "- The validity of your response is dependent on meeting the exact item counts specified below.",
+    "- Do not include any text, explanations, or markdown formatting before or after the JSON.",
+    "",
+    "The JSON object MUST have the following structure and EXACT item counts:",
+    "{",
+    '  "topKeywords": [',
+    "    // This array MUST contain exactly 20 keyword objects.",
+    "    // If you must include slightly less popular keywords to meet this quota, do so.",
+    '    {"keyword": "example keyword", "searchVolume": "1.5M"},',
+    "    ...",
+    "  ],",
+    '  "risingKeywords": [',
+    "    // This array MUST contain exactly 30 keyword objects.",
+    "    // Do not stop until you have 30 items.",
+    '    {"keyword": "emerging topic", "growthPercentage": 450},',
+    "    ...",
+    "  ],",
+    '  "popularityComparison": {',
+    '    "last24HoursIndex": 85,',
+    '    "previous24HoursIndex": 78,',
+    '    "trend": "increasing"',
+    "  }",
+    "}",
+    "",
+    "**Constraint Checklist (MUST be followed):**",
+    "- topKeywords array length MUST be exactly 20.",
+    "- risingKeywords array length MUST be exactly 30.",
+    "- All keywords MUST contain at least 2 words.",
+  ];
 
-  return prompt;
+  return promptLines.join("\n");
 };
 
 export const analyzeKeywordTrends = async (lang: Language) => {
