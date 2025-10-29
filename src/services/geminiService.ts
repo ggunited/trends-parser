@@ -61,29 +61,29 @@ ${languageInstruction}
 - Do not include any text, explanations, or markdown formatting before or after the JSON.
 
 The JSON object MUST have the following structure and EXACT item counts:
-{
+{{
   "topKeywords": [
     // This array MUST contain exactly 20 keyword objects.
     // If you must include slightly less popular keywords to meet this quota, do so.
-    {"keyword": "example keyword", "searchVolume": "1.5M"},
+    {{"keyword": "example keyword", "searchVolume": "1.5M"}},
     ...
   ],
   "risingKeywords": [
-    // This array MUST contain exactly 50 keyword objects.
-    // Do not stop until you have 50 items.
-    {"keyword": "emerging topic", "growthPercentage": 450},
+    // This array MUST contain exactly 30 keyword objects.
+    // Do not stop until you have 30 items.
+    {{"keyword": "emerging topic", "growthPercentage": 450}},
     ...
   ],
-  "popularityComparison": {
+  "popularityComparison": {{
     "last24HoursIndex": 85,
     "previous24HoursIndex": 78,
     "trend": "increasing"
-  }
-}
+  }}
+}}
 
 **Constraint Checklist (MUST be followed):**
 - topKeywords array length MUST be exactly 20.
-- risingKeywords array length MUST be exactly 50.
+- risingKeywords array length MUST be exactly 30.
 - All keywords MUST contain at least 2 words.
 `;
 };
